@@ -9,15 +9,16 @@ public class Main {
 
 //    ToDo:
 //          TimerTask auslagern/zum laufen bringen,
-//          NullPointer beheben/ Zeile 90
 //          mit Jar testen
 
     private static Object TimerTask;
+    private static Connection conn;
 
     public static void main(String[] args) {
         String url = "jdbc:mysql://localhost:3306/chatprogramm?user=root";
+        
         try {
-            Connection conn = DriverManager.getConnection(url);
+            conn = DriverManager.getConnection(url);
             System.out.println("connection access");
 
             connectionAndSend(conn);
@@ -33,6 +34,14 @@ public class Main {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+            	if(conn != null) {
+            		conn.close();
+            	}
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -75,13 +84,7 @@ public class Main {
 
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                conn.close();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        }
+        } 
     }
 
     private static void connectionAndRead(Connection conn) {
@@ -92,7 +95,6 @@ public class Main {
 
             try {
                 stmt = conn.createStatement();
-                //er gibt mir hier einen NullPointer aus...
                 ResultSet rs = stmt.executeQuery("select * from user where userName = '" + sender.getUserId() + "'");
                 rs.next();
                 sender = new User(rs.getString("userName"), rs.getInt("userId"));
@@ -109,14 +111,6 @@ public class Main {
 
         } catch (SQLException e) {
             throw new Error("Problem", e);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
-        }
+        } 
     }
 }
